@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <title>Compilador JL</title>
+    <link rel="icon" type="image/png" href="../img/icono.png">
+</head>
+<body>
+    <div class="logo-container">
+        <img src="../img/desarrollo.png" width="100">
+        <h1>BIENVENIDOS AL COMPILADOR JL</h1>
+    </div>
+
+    <div id="container">
+        <div class="container_1">
+            <div class="code-source-container">
+                <h5>--------------------------------- Código Fuente --------------------------------- </h5>
+                <div class="file-input-container">
+                    <label for="fileInput" id="fileInputLabel" class="file-input-label">
+                        📁 Importar archivo
+                    </label>
+                    <input type="file" id="fileInput" accept=".txt" style="display: none" onchange="loadFile()">
+                </div>
+                <div class="code-editor">
+                    <div class="line-numbers" id="lineNumbers"></div>
+                    <pre id="codeEditor" class="editor" contenteditable="true" oninput="updateLineNumbers()" onscroll="syncLineNumbers()"></pre>
+                </div>
+            </div>                        
+            
+            <div>
+                <h5 style="margin-bottom: 41px;">------------------------------- Análisis Léxico -------------------------------</h5>
+                <div id="lexicoOutput" class="output"></div>
+            </div>
+            <div>
+                <h5 style="margin-bottom: 41px;">---------------------------- Análisis Semántico ----------------------------</h5>
+                <div id="semanticoOutput" class="output"></div>
+            </div>
+        </div>
+        <div class="container_2">
+            <div>
+                <h5>------------------------------------------------------------------------- Análisis Sintáctico -------------------------------------------------------------------------</h5>
+                <div id="sintacticoOutput" class="output"></div>
+            </div>
+            <div class="button-container">
+                <button id="lexicoButton" class="ov-btn-grow-skew" style="margin-top: 30px;">Analizar Léxico 😄</button>
+                <button id="sintacticoButton" class="ov-btn-grow-skew">Analizar Sintáctico 🚀</button>
+                <button id="semanticoButton" class="ov-btn-grow-skew">Analizar Semántico 🔍</button>
+                <button id="compilarButton" class="ov-btn-grow-skew">Analizar ▶️</button>
+                <button id="limpiarButton" class="ov-btn-grow-skew">Limpiar 🧹</button>
+            </div>
+            <div>
+                <img src="../img/amor.png" width="200" class="animated-image">
+            </div>
+        </div>
+    </div>
+
+    <script src="../JS/scripts.js"></script>
+</body>
+</html>
