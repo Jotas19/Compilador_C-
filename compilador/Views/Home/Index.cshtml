@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Compilador JL";
+}
+
+<div class="logo-container">
+    <img src="../images/desarrollo.png" width="100">
+    <h1 class="tituloPrincipal">BIENVENIDOS AL COMPILADOR JL</h1>
+</div>
+
+<div id="container">
+    <div class="container_1">
+        <div class="code-source-container">
+            <hr id="type">
+            <h5>Código Fuente</h5>
+            <hr id="type_2">
+            <div class="file-input-container">
+                <label for="fileInput" id="fileInputLabel" class="file-input-label">
+                    📁 Importar archivo
+                </label>
+                <input type="file" id="fileInput" accept=".txt" style="display: none" onchange="loadFile()">
+            </div>
+            <div class="code-editor">
+                <div class="line-numbers" id="lineNumbers"></div>
+                <pre id="codeEditor" class="editor" contenteditable="true" oninput="updateLineNumbers()"
+                    onscroll="syncLineNumbers()"></pre>
+            </div>
+        </div>
+
+        <div>
+            <hr id="type">
+            <h5 class="tituloL">Análisis Léxico</h5>
+            <hr id="type_2">
+            <div id="lexicoOutput" class="output"></div>
+        </div>
+        <div>
+            <hr id="type">
+            <h5 class="tituloSem">Análisis Semántico</h5>
+            <hr id="type_2">
+            <div id="semanticoOutput" class="output"></div>
+        </div>
+    </div>
+    <div class="container_2">
+        <div>
+            <hr id="type">
+            <h5>Análisis Sintáctico</h5>
+            <hr id="type_2">
+            <div id="sintacticoOutput" class="output"></div>
+        </div>
+        <div class="button-container">
+            <button id="lexicoButton" class="ov-btn-grow-skew">Analizar Léxico 😄</button>
+            <button id="sintacticoButton" class="ov-btn-grow-skew">Analizar Sintáctico 🚀</button>
+            <button id="semanticoButton" class="ov-btn-grow-skew">Analizar Semántico 🔍</button>
+            <button id="compilarButton" class="ov-btn-grow-skew">Analizar ▶️</button>
+            <button id="limpiarButton" class="ov-btn-grow-skew">Limpiar 🧹</button>
+        </div>
+        <div>
+            <img src="../images/amor.png" width="200" class="animated-image">
+        </div>
+    </div>
+</div>
