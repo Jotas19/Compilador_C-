@@ -104,3 +104,56 @@ function limpiarAnalizadores() {
     semanticoOutput.textContent = '';
     sintacticoOutput.textContent = '';
 }
+
+function analyzeLexico() {
+    // Obtener el código del editor
+    var codeEditorContent = document.getElementById('codeEditor').innerText;
+    console.log('Código de entrada:', codeEditorContent);
+
+
+    // Llamar directamente a la función Tokenize del controlador
+    $.ajax({
+        type: 'POST',
+        contentType: 'application/json',
+        url: '/api/Analizador_Lexico/Tokenize',
+        data: JSON.stringify(codeEditorContent), // Solo envía el contenido directamente, sin un objeto con una propiedad 'codigo'
+        success: function (data) {
+            console.log('Respuesta del servidor:', data);
+            // Mostrar los resultados en lexicoOutput
+            var lexicoOutputElement = document.getElementById('lexicoOutput');
+            lexicoOutputElement.innerHTML = ''; // Limpiar contenido anterior
+
+            if (data.length > 0) {
+                data.forEach(function (resultArray) {
+                    var resultDiv = document.createElement('div');
+                    resultArray.forEach(function (result) {
+                        resultDiv.textContent += `Type: ${result.type}, Value: ${result.value} | \n`;
+                    });
+                    resultDiv.textContent += '\n';
+
+                    lexicoOutputElement.appendChild(resultDiv);
+                });
+            } else {
+                lexicoOutputElement.textContent = 'No se ha detectado nada en la caja de texto para analizar.';
+            }
+        },
+        error: function (error) {
+            console.error('Error al llamar a Tokenize:', error);
+        }
+    });
+}
+
+function analyzeSintactico() {
+    // Llamar a la función AnalizarSintaxis del controlador
+    $.ajax({
+        type: 'POST',
+        url: '/api/Analizador_Sintactico/AnalizarSintaxis',
+        success: function (data) {
+            console.log('Respuesta del servidor:', data);
+            // Maneja la respuesta según sea necesario
+        },
+        error: function (error) {
+            console.error('Error al llamar a AnalizarSintaxis:', error);
+        }
+    });
+}

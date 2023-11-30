@@ -245,13 +245,15 @@ button:hover {
 }
 
 #lexicoOutput {
-  margin-top: 44px;
-  min-height: 388px;
-  min-width: 350px;
-  max-height: 388px;
-  max-width: 350px;
-  margin-left: 4px;
-  margin-right: 4px;
+    margin-top: 44px;
+    min-height: 388px;
+    min-width: 350px;
+    max-height: 388px;
+    max-width: 350px;
+    margin-left: 4px;
+    margin-right: 4px;
+    overflow: auto; /* Agrega barras de desplazamiento en caso de desbordamiento */
+    white-space: pre-line; /* Mantiene los saltos de línea y espacios en blanco */
 }
 
 #semanticoOutput {
