@@ -1,5 +1,4 @@
-﻿/*
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using static compilador.Controllers.Analizador_Lexico;
 
@@ -20,7 +19,7 @@ namespace compilador.Controllers
             {
                 Console.WriteLine($"Tipo: {token.Type}, Valor: {token.Value}");
             }
-            return lineTokens;
+            return tokensObtenidos;
         }
 
         public class Report_Message
@@ -41,7 +40,7 @@ namespace compilador.Controllers
         public IActionResult AnalizarSintaxis(List<Token> tokensObtenidos)
         {
 
-            List<Report_Message> Report_Message = new List<Report_Message>;
+            List<Report_Message> Report_Message = new List<Report_Message>();
             try
             {
                 GetTokens_From_Lexico (tokensObtenidos);
@@ -63,17 +62,19 @@ namespace compilador.Controllers
                 AnalizarFunciones(tokensObtenidos);
 
                 Console.WriteLine("Análisis sintáctico exitoso.");
+                return Ok(Report_Message);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error en el análisis sintáctico: {ex.Message}");
+                return BadRequest($"Error en el análisis sintáctico: {ex.Message}");
             }
         }
 
         //Primer paso del analizador. 1. Analizador de Declaraciones
         private List<Report_Message> AnalizarDeclaraciones(List<Token> lineTokens)
         {
-            List<Report_Message> Report_Message = new List<Report_Message>;
+            List<Report_Message> Report_Message = new List<Report_Message>();
 
             int index = 0;
 
@@ -145,8 +146,9 @@ namespace compilador.Controllers
                     // Avanzar al siguiente token si no es una palabra clave de tipo
                     index++;
                 }
-                return Report_Message;
             }
+
+            return Report_Message;
         }
         //2. Analizador de operaciones.
         private void AnalizarOperaciones(List<Token> lineTokens)
@@ -639,7 +641,6 @@ namespace compilador.Controllers
         private bool EsOperadorAritmetico(Token token)
         {
             return token.Type == "OPERATOR" && "+-*///".Contains(token.Value);
-/*
         }
     
         //1.2.3 Analizar la precedencia del operador.
@@ -748,4 +749,3 @@ namespace compilador.Controllers
 
     }
 }
-*/

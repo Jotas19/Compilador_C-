@@ -148,6 +148,8 @@ function analyzeSintactico() {
     $.ajax({
         type: 'POST',
         url: '/api/Analizador_Sintactico/AnalizarSintaxis',
+        contentType: 'application/json',
+        data: JSON.stringify(tokensObtenidos),
         success: function (data) {
             console.log('Respuesta del servidor:', data);
             // Maneja la respuesta según sea necesario
