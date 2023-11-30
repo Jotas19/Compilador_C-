@@ -17,10 +17,11 @@ namespace compilador.Controllers
             // Haz lo que necesites con la lista de tokens obtenidos
             foreach (var token in tokensObtenidos)
             {
-                Console.WriteLine($"Tipo: {token.Type}, Valor: {token.Value}");
+                //Console.WriteLine($"Tipo: {token.Type}, Valor: {token.Value}");
             }
             return tokensObtenidos;
         }
+
 
         public class Report_Message
         {
@@ -34,42 +35,85 @@ namespace compilador.Controllers
             }
         }
 
+        public class ReportMessageService
+        {
+            private static List<Report_Message> reportMessages = new List<Report_Message>();
+
+
+            public static void AddReportMessage(Report_Message message)
+            {
+                reportMessages.Add(message);
+            }
+
+            
+
+            public static List<Report_Message> GetReportMessages()
+            {
+                return reportMessages;
+            }
+
+            
+
+            public static void ClearReportMessages()
+            {
+                reportMessages.Clear();
+            }
+
+            
+            public static void PrintReportMessages()
+            {
+                foreach (var message in reportMessages)
+                {
+                    Console.WriteLine($"Type: {message.Type}, Value: {message.Value}");
+                }
+            }
+
+            
+
+        }
+
 
         [HttpPost]
-        [Route("AnalizarSintaxis")]
-        public IActionResult AnalizarSintaxis(List<Token> tokensObtenidos)
+        [Route("AnalizarSintaxis")]    
+        public IActionResult AnalizarSintaxis([FromBody]List<Token> tokensObtenidos)
         {
+            List<Token> tokens_Sintactico = GetTokens_From_Lexico(tokensObtenidos);
 
             List<Report_Message> Report_Message = new List<Report_Message>();
+
             try
             {
-                GetTokens_From_Lexico (tokensObtenidos);
 
-                if (tokensObtenidos == null || !tokensObtenidos.Any())
+
+                if (tokens_Sintactico == null || !tokens_Sintactico.Any())
                 {
                     Console.WriteLine("Error: Lista de tokens vacía o nula.");
 
                     string errorMessage = $"Error: Lista de tokens vacía o nula.";
-                    Report_Message.Add(new Report_Message("ERROR", errorMessage));
+                    ReportMessageService.AddReportMessage(new Report_Message("Error", errorMessage));
                     Console.WriteLine(errorMessage);
-                    return Ok(Report_Message);
+                    return Ok(ReportMessageService.GetReportMessages());
                 }
 
                 // Inicia el análisis sintáctico según las reglas gramaticales de MiniLang
-                AnalizarDeclaraciones(tokensObtenidos);
-                AnalizarOperaciones(tokensObtenidos);
-                AnalizarEstructurasControl(tokensObtenidos);
-                AnalizarFunciones(tokensObtenidos);
+                AnalizarDeclaraciones(tokens_Sintactico);
+                AnalizarOperaciones(tokens_Sintactico);
+                AnalizarEstructurasControl(tokens_Sintactico);
+                AnalizarFunciones(tokens_Sintactico);
 
-                Console.WriteLine("Análisis sintáctico exitoso.");
+                //Console.WriteLine("Análisis sintáctico exitoso.");
                 return Ok(Report_Message);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error en el análisis sintáctico: {ex.Message}");
+                ReportMessageService.AddReportMessage(new Report_Message("Error", $"Error en el análisis sintáctico: {ex.Message}"));
                 return BadRequest($"Error en el análisis sintáctico: {ex.Message}");
             }
+            
         }
+
+        
 
         //Primer paso del analizador. 1. Analizador de Declaraciones
         private List<Report_Message> AnalizarDeclaraciones(List<Token> lineTokens)
@@ -117,7 +161,7 @@ namespace compilador.Controllers
                             else
                             {
                                 string errorMessage = $"Error de sintaxis: Se esperaba un punto y coma al final de la declaración de '{nombreVariable}'";
-                                Report_Message.Add(new Report_Message("ERROR", errorMessage));
+                                Report_Message.Add(new Report_Message("Error", errorMessage));
                                 Console.WriteLine(errorMessage);
                                 // Error: Se esperaba un punto y coma al final de la declaración
                                 Console.WriteLine($"Error de sintaxis: Se esperaba un punto y coma al final de la declaración de '{nombreVariable}'");
@@ -126,7 +170,7 @@ namespace compilador.Controllers
                         else
                         {
                             string errorMessage = $"Error de sintaxis: Falta el signo igual '=' después de '{nombreVariable}'";
-                            Report_Message.Add(new Report_Message("ERROR", errorMessage));
+                            Report_Message.Add(new Report_Message("Error", errorMessage));
                             Console.WriteLine(errorMessage);
                             // Error: Falta el signo igual '=' después del identificador
                             Console.WriteLine($"Error de sintaxis: Falta el signo igual '=' después de '{nombreVariable}'");
@@ -135,7 +179,7 @@ namespace compilador.Controllers
                     else
                     {
                         string errorMessage = $"Error de sintaxis: Se esperaba un identificador después de '{tipo}'";
-                        Report_Message.Add(new Report_Message("ERROR", errorMessage));
+                        Report_Message.Add(new Report_Message("Error", errorMessage));
                         Console.WriteLine(errorMessage);
                         // Error: Se esperaba un identificador después del tipo
                         Console.WriteLine($"Error de sintaxis: Se esperaba un identificador después de '{tipo}'");
@@ -163,9 +207,10 @@ namespace compilador.Controllers
                 {
                     // Analizar expresión aritmética
                     double resultadoExpresion = AnalizarExpresionAritmetica(lineTokens, ref index);
-
+                    ReportMessageService.AddReportMessage(new Report_Message("Operación Aritmética: ", $"{resultadoExpresion}"));
                     // Realizar acciones necesarias con el resultado, como asignarlo o imprimirlo
                     Console.WriteLine($"Operación aritmética: {resultadoExpresion}");
+
                 }
                 else if (EsOperacionLogica(tokenActual))
                 {
@@ -173,6 +218,7 @@ namespace compilador.Controllers
                     bool resultadoExpresion = AnalizarExpresionLogica(lineTokens, ref index);
 
                     // Realizar acciones necesarias con el resultado, como asignarlo o imprimirlo
+                    ReportMessageService.AddReportMessage(new Report_Message("Operación lógica: ", $"{resultadoExpresion}"));
                     Console.WriteLine($"Operación lógica: {resultadoExpresion}");
                 }
                 else
@@ -181,6 +227,7 @@ namespace compilador.Controllers
                     index++;
                 }
             }
+            
         }
 
         private void AnalizarEstructurasControl(List<Token> lineTokens)
@@ -225,18 +272,21 @@ namespace compilador.Controllers
                                 else
                                 {
                                     // Error: Bloque de código esperado después de "else"
+                                    ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Bloque de código esperado después de 'else'"));
                                     Console.WriteLine("Error de sintaxis: Bloque de código esperado después de 'else'");
                                 }
                             }
                         }
                         else
                         {
+                            ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Bloque de código esperado después de la condición 'if'"));
                             // Error: Bloque de código esperado después de la condición del "if"
                             Console.WriteLine("Error de sintaxis: Bloque de código esperado después de la condición 'if'");
                         }
                     }
                     else
                     {
+                        ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Condición del 'if' no válida"));
                         // Error: Condición del "if" no válida
                         Console.WriteLine("Error de sintaxis: Condición del 'if' no válida");
                     }
@@ -261,11 +311,13 @@ namespace compilador.Controllers
                         else
                         {
                             // Error: Bloque de código esperado después de la condición del "while"
+                            ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Bloque de código esperado después de la condición 'while'"));
                             Console.WriteLine("Error de sintaxis: Bloque de código esperado después de la condición 'while'");
                         }
                     }
                     else
                     {
+                        ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Condición del 'while' no válida"));
                         // Error: Condición del "while" no válida
                         Console.WriteLine("Error de sintaxis: Condición del 'while' no válida");
                     }
@@ -332,29 +384,34 @@ namespace compilador.Controllers
                                     else
                                     {
                                         // Error: Se esperaba un paréntesis de cierre '}' después del bloque de código
+                                        ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Se esperaba '}' después del bloque de código de la función"));
                                         Console.WriteLine("Error de sintaxis: Se esperaba '}' después del bloque de código de la función");
                                     }
                                 }
                                 else
                                 {
+                                    ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Bloque de código esperado después de la definición de la función"));
                                     // Error: Bloque de código esperado después de la definición de la función
                                     Console.WriteLine("Error de sintaxis: Bloque de código esperado después de la definición de la función");
                                 }
                             }
                             else
                             {
+                                ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Se esperaba ')' después de los parámetros de la función"));
                                 // Error: Se esperaba un paréntesis de cierre ')' después de los parámetros de la función
                                 Console.WriteLine("Error de sintaxis: Se esperaba ')' después de los parámetros de la función");
                             }
                         }
                         else
                         {
+                            ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Se esperaba '(' después del nombre de la función"));
                             // Error: Se esperaba un paréntesis de apertura '(' después del nombre de la función
                             Console.WriteLine("Error de sintaxis: Se esperaba '(' después del nombre de la función");
                         }
                     }
                     else
                     {
+                        ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Se esperaba un identificador después del tipo"));
                         // Error: Se esperaba un identificador después del tipo
                         Console.WriteLine("Error de sintaxis: Se esperaba un identificador después del tipo");
                     }
@@ -430,6 +487,7 @@ namespace compilador.Controllers
                     else
                     {
                         // Manejar error de conversión
+                        ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "No se pudo convertir el literal numérico"));
                         Console.WriteLine($"Error de sintaxis: No se pudo convertir el literal numérico '{tokenActual.Value}'");
                     }
                 }
@@ -446,6 +504,7 @@ namespace compilador.Controllers
                 }
                 else
                 {
+                    ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", $"Token no reconocido '{tokenActual.Value}' en la expresión"));
                     // Manejar otros tipos de tokens o lanzar un error según sea necesario
                     Console.WriteLine($"Error de sintaxis: Token no reconocido '{tokenActual.Value}' en la expresión");
                 }
@@ -467,6 +526,7 @@ namespace compilador.Controllers
             }
             else
             {
+                ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", "Expresión inválida"));
                 // Manejar error de evaluación
                 Console.WriteLine("Error de sintaxis: Expresión inválida");
             }
@@ -498,6 +558,7 @@ namespace compilador.Controllers
                     }
                     else
                     {
+                        ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", $"No se pudo convertir el literal numérico '{tokenActual.Value}'"));
                         // Manejar error de conversión
                         Console.WriteLine($"Error de sintaxis: No se pudo convertir el literal numérico '{tokenActual.Value}'");
                     }
@@ -515,6 +576,7 @@ namespace compilador.Controllers
                 }
                 else
                 {
+                    ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", $"Token no reconocido '{tokenActual.Value}' en la expresión"));
                     // Manejar otros tipos de tokens o lanzar un error según sea necesario
                     Console.WriteLine($"Error de sintaxis: Token no reconocido '{tokenActual.Value}' en la expresión");
                 }
@@ -537,6 +599,7 @@ namespace compilador.Controllers
             else
             {
                 // Manejar error de evaluación
+                ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", $"Expresión aritmética inválida'"));
                 Console.WriteLine("Error de sintaxis: Expresión aritmética inválida");
             }
 
@@ -566,6 +629,7 @@ namespace compilador.Controllers
                     else
                     {
                         // Manejar error de conversión
+                        ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", $"No se pudo convertir el literal booleano '{tokenActual.Value}'"));
                         Console.WriteLine($"Error de sintaxis: No se pudo convertir el literal booleano '{tokenActual.Value}'");
                     }
                 }
@@ -582,6 +646,7 @@ namespace compilador.Controllers
                 }
                 else
                 {
+                    ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", $"Token no reconocido '{tokenActual.Value}' en la expresión lógica"));
                     // Manejar otros tipos de tokens o lanzar un error según sea necesario
                     Console.WriteLine($"Error de sintaxis: Token no reconocido '{tokenActual.Value}' en la expresión lógica");
                 }
@@ -603,6 +668,8 @@ namespace compilador.Controllers
             }
             else
             {
+                ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", $"Expresión lógica inválida"));
+
                 // Manejar error de evaluación
                 Console.WriteLine("Error de sintaxis: Expresión lógica inválida");
             }
@@ -695,12 +762,14 @@ namespace compilador.Controllers
                         break;
                     default:
                         // Manejar error de operador lógico no reconocido
+                        ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", $"Operador lógico no reconocido '{operador}'"));
                         Console.WriteLine($"Error: Operador lógico no reconocido '{operador}'");
                         break;
                 }
             }
             else
             {
+                ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", $"Falta de operandos para el operador lógico en la expresión lógica"));
                 // Manejar error de falta de operandos
                 Console.WriteLine("Error: Falta de operandos para el operador lógico en la expresión lógica");
             }
@@ -733,6 +802,7 @@ namespace compilador.Controllers
                         }
                         else
                         {
+                            ReportMessageService.AddReportMessage(new Report_Message("Error de sintaxis: ", $"División por cero en la expresión"));
                             // Manejar error de división por cero
                             Console.WriteLine("Error: División por cero en la expresión");
                         }
@@ -742,8 +812,22 @@ namespace compilador.Controllers
             else
             {
                 // Manejar error de falta de operandos
+                ReportMessageService.AddReportMessage(new Report_Message("ERROR", $"Falta de operandos para el operador en la expresión: "));
                 Console.WriteLine("Error: Falta de operandos para el operador en la expresión");
             }
+        }
+
+
+        [HttpGet]
+        [Route("ObtenerReporte")]
+        public IActionResult ObtenerReporte()
+        {
+            
+            var reportMessages = ReportMessageService.GetReportMessages();
+            // Filtrar los mensajes para excluir aquellos con el atributo "ERROR"
+            var mensajesSinErrores = reportMessages.Where(message => !string.Equals(message.Type, "ERROR", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            return Ok(mensajesSinErrores);
         }
 
 

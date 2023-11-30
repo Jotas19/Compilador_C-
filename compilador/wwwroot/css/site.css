@@ -257,18 +257,22 @@ button:hover {
 }
 
 #semanticoOutput {
-  margin-top: 44px;
-  min-height: 388px;
-  min-width: 350px;
-  max-height: 388px;
-  max-width: 350px;
+    margin-top: 44px;
+    min-height: 388px;
+    min-width: 350px;
+    max-height: 388px;
+    max-width: 350px;
+    overflow: auto; /* Agrega barras de desplazamiento en caso de desbordamiento */
+    white-space: pre-line; /* Mantiene los saltos de línea y espacios en blanco */
 }
 
 #sintacticoOutput {
-  min-width: 735px;
-  min-height: 200px;
-  max-height: 735px;
-  max-width: 200px;
+    min-width: 735px;
+    min-height: 200px;
+    max-height: 735px;
+    max-width: 200px;
+    overflow: auto; /* Agrega barras de desplazamiento en caso de desbordamiento */
+    white-space: pre-line; /* Mantiene los saltos de línea y espacios en blanco */
 }
 
 .file-input-label {

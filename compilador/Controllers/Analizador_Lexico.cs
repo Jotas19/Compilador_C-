@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using static compilador.Controllers.Analizador_Sintactico;
+
 
 
 namespace compilador.Controllers
@@ -70,7 +72,7 @@ namespace compilador.Controllers
         {
             try
             {
-                Console.WriteLine(codigo);
+                //Console.WriteLine(codigo);
                 // Dividir el código por saltos de línea
                 string[] lines = codigo.Split('\n');
 
@@ -95,101 +97,12 @@ namespace compilador.Controllers
                 return StatusCode(500, "Error interno del servidor");
             }
         }
-        /*
-        public List<Token> Tokenize(string line)
-
-        //public List<Token> Tokenize(string codigo)
-        {
-            int position = 0;
-
-            while (position < line.Length) 
-
-
-            //while (position < codigo.Length) 
-            {
-                //char currentChar = codigo[position];
-                char currentChar = line[position];
-
-
-                if (char.IsWhiteSpace(currentChar))
-                {
-                    position++;
-                    continue;
-                }
-
-                // Identificar palabras clave
-                if (Regex.IsMatch(codigo.Substring(position), @"\b(int|float|bool|string)\b"))
-                {
-                    //Match match = Regex.Match(codigo.Substring(position), @"\b(int|float|bool|string)\b");
-                    Match match = Regex.Match(line.Substring(position), @"\b(int|float|bool|string)\b");
-
-                    AddToken(match.Value, match.Value);
-                    position += match.Length;
-                    continue;
-                }
-
-
-                // Identificar identificadores
-                if (Regex.IsMatch(currentChar.ToString(), @"[a-zA-Z]"))
-                {
-                    //Match match = Regex.Match(codigo.Substring(position), @"\b(int|float|bool|string)\b|[a-zA-Z][a-zA-Z0-9_]*");
-                    Match match = Regex.Match(line.Substring(position), @"\b(int|float|bool|string)\b|[a-zA-Z][a-zA-Z0-9_]*");
-
-                    AddToken("IDENTIFIER", match.Value);
-                    position += match.Length;
-                    continue;
-                }
-
-
-                // Identificar literales de cadena
-                if (currentChar == '\"')
-                {
-                    //Match match = Regex.Match(codigo.Substring(position + 1), @"[^""]*");
-                    Match match = Regex.Match(line.Substring(position + 1), @"[^""]*");
-                    AddToken("STRING_LITERAL", match.Value);
-                    position += match.Length + 2; // Moverse al siguiente caracter después de las comillas de cierre
-                    continue;
-                }
-
-                // Identificar punto y coma
-                if (currentChar == ';')
-                {
-                    AddToken("SEMICOLON", currentChar.ToString());
-                    position++;
-                    continue;
-                }
-
-                // Identificar operadores
-                if (Regex.IsMatch(currentChar.ToString(), @"[=+\-*\/]"))
-                {
-                    AddToken("OPERATOR", currentChar.ToString());
-                    position++;
-                    continue;
-                }
-
-                // Identificar literales numéricos
-                if (Regex.IsMatch(currentChar.ToString(), @"\d"))
-                {
-                    //Match match = Regex.Match(codigo.Substring(position), @"\d+(\.\d+)?");
-
-                    Match match = Regex.Match(line.Substring(position), @"\d+(\.\d+)?");
-                    AddToken("NUMERIC_LITERAL", match.Value);
-                    position += match.Length;
-                    continue;
-                }
-
-                Console.WriteLine($"Error: Carácter inesperado '{currentChar}' en la posición {position}");
-                position++;
-            }
-            LogTokens(tokens);
-            return tokens;
-        }
-        */
-
+ 
         public List<Token> Tokenize(string line)
         {
             List<Token> lineTokens = new List<Token>();
             int position = 0;
+            string errormessage = "";
 
             while (position < line.Length)
             {
@@ -201,26 +114,98 @@ namespace compilador.Controllers
                     continue;
                 }
 
-                // Identificar palabras clave
-                if (Regex.IsMatch(line.Substring(position), @"\b(int|float|bool|string|char)\b"))
+                // Identificar comentarios de una línea
+                if (currentChar == '/' && position + 1 < line.Length && line[position + 1] == '/')
                 {
-                    Match match = Regex.Match(line.Substring(position), @"\b(int|float|bool|string|char)\b");
+                    // La línea completa es un comentario, así que añadimos el token y terminamos el análisis
+                    lineTokens.Add(new Token("COMMENT", line.Substring(position + 2)));
+                    return lineTokens;
+                }
+
+                // Identificar comentarios de varias líneas
+                if (currentChar == '/' && position + 1 < line.Length && line[position + 1] == '*')
+                {
+                    int endIndex = line.IndexOf("*/", position + 2);
+                    if (endIndex != -1)
+                    {
+                        // Añadir el token de comentario de varias líneas y avanzar hasta después del cierre del comentario
+                        lineTokens.Add(new Token("COMMENT", line.Substring(position + 2, endIndex - position - 2)));
+                        position = endIndex + 2;
+                        continue;
+                    }
+                    else
+                    {
+                        // Comentario de varias líneas no cerrado, manejar error
+                        string errorMessage2 = "Error: Comentario de varias líneas no cerrado.";
+                        lineTokens.Add(new Token("ERROR", errorMessage2));
+                        Console.WriteLine(errorMessage2);
+                        return lineTokens;
+                    }
+                }
+
+                // Identificar comentarios de una línea (si el comentario de varias líneas no está presente)
+                if (currentChar == '/' && position + 1 < line.Length && line[position + 1] != '*' && line[position + 1] != '/')
+                {
+                    // La línea completa es un comentario, así que añadimos el token y terminamos el análisis
+                    lineTokens.Add(new Token("COMMENT", line.Substring(position + 2)));
+                    return lineTokens;
+                }
+
+                // Identificar palabras clave
+                if (Regex.IsMatch(line.Substring(position), @"\b\s*(int|float|bool|string|char)\s*\b"))
+                {
+                    Match match = Regex.Match(line.Substring(position), @"\b\s*(int|float|bool|string|char)\s*\b");
                     lineTokens.Add(new Token("KEYWORD", match.Value));
                     position += match.Length;
                     continue;
                 }
 
-                // Identificar identificadores
-                if (Regex.IsMatch(line.Substring(position), @"[a-zA-Z]"))
+                // Identificar estructuras de control if y while
+                if (Regex.IsMatch(line.Substring(position), @"\b\s*(if|else|while)\s*\b"))
                 {
-                    Match match = Regex.Match(line.Substring(position), @"[a-zA-Z][a-zA-Z0-9_]*");
+                    Match match = Regex.Match(line.Substring(position), @"\b\s*(if|else|while)\s*\b");
+                    lineTokens.Add(new Token("CONTROL_STRUCTURE", match.Value));
+                    position += match.Length;
+                    continue;
+                }
 
-                    // Verificar que no sea una palabra clave
-                    if (!Regex.IsMatch(match.Value, @"\b(int|float|bool|string|char)\b"))
-                    {
-                        lineTokens.Add(new Token("IDENTIFIER", match.Value));
-                    }
+                // Identificar paréntesis de apertura
+                if (currentChar == '(')
+                {
+                    lineTokens.Add(new Token("OPEN_PAREN", currentChar.ToString()));
+                    position++;
+                    continue;
+                }
 
+                // Identificar paréntesis de cierre
+                if (currentChar == ')')
+                {
+                    lineTokens.Add(new Token("CLOSE_PAREN", currentChar.ToString()));
+                    position++;
+                    continue;
+                }
+
+                // Identificar llave de apertura
+                if (currentChar == '{')
+                {
+                    lineTokens.Add(new Token("OPEN_BRACE", currentChar.ToString()));
+                    position++;
+                    continue;
+                }
+
+                // Identificar llave de cierre
+                if (currentChar == '}')
+                {
+                    lineTokens.Add(new Token("CLOSE_BRACE", currentChar.ToString()));
+                    position++;
+                    continue;
+                }
+
+                // Identificar identificadores
+                if (Regex.IsMatch(line.Substring(position), @"^[a-zA-Z][a-zA-Z0-9_]*"))
+                {
+                    Match match = Regex.Match(line.Substring(position), @"^[a-zA-Z][a-zA-Z0-9_]*");
+                    lineTokens.Add(new Token("IDENTIFIER", match.Value));
                     position += match.Length;
                     continue;
                 }
@@ -260,18 +245,43 @@ namespace compilador.Controllers
                     continue;
                 }
 
+
+
                 // Verificar si hay un carácter inesperado y retornar el mensaje de error
                 string errorMessage = $"Error: Carácter inesperado '{currentChar}' en la posición {position}";
                 lineTokens.Add(new Token("ERROR", errorMessage));
-                Console.WriteLine(errorMessage);
+                //Console.WriteLine(errorMessage);
                 return lineTokens; 
                 
                 //position++;
             }
-            LogTokens(lineTokens);
+
+            var sintacticoController = new Analizador_Sintactico();
+            sintacticoController.AnalizarSintaxis(lineTokens);
+
+
+            var semanticoController = new Analizador_Semantico();
+            semanticoController.AnalizarSemantica(lineTokens);
+
+            //LogTokens(lineTokens);
             return lineTokens;
         }
 
+        [HttpPost]
+        [Route("Sintactico")]
+        public List<Token> Sintactico(List<Token> lineTokens)
+        {
+            // Aquí puedes realizar cualquier lógica necesaria para obtener o procesar los tokens
+            return lineTokens;
+        }
+
+        [HttpPost]
+        [Route("Semantico")]
+        public List<Token> Semantico(List<Token> lineTokens)
+        {
+            // Aquí puedes realizar cualquier lógica necesaria para obtener o procesar los tokens
+            return lineTokens;
+        }
 
         public static class TokenUtility
         {
@@ -288,11 +298,18 @@ namespace compilador.Controllers
 
         private void LogTokens(List<Token> tokens)
         {
-            
+            Console.WriteLine($"Empieza Registro de Tokens");
             foreach (var token in tokens)
             {
+                
                 Console.WriteLine($"Tipo: {token.Type}, Valor: {token.Value}");
             }
+            Console.WriteLine($"Fin Registro de Tokens");
+            Console.WriteLine($"");
+            Console.WriteLine($"");
+
+
         }
+
     }
 }

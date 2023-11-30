@@ -1,8 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "3OmqiWeDIPvlrqZh6lGSKua4C3ds9F0nP9fmD7+9q2QgJAiUk1WB0NlQ1rsCfSPtF1d8Vog3mmUcBhbmtRcY2g==",
+  "dgSpecHash": "VuP7LQHP4pMAij9D+bk9K/hBdpZb86VKRdBkFCu8hv6cKY4bjDNkL5W2tUoc7n8HOjakuOS9/diFPsvrtXYaQQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\AMD\\Documents\\9 semestre\\Compiladores\\Compilador_C-\\compilador\\compilador.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "G:\\Trabajos\\Compilador\\Jotas19\\Compilador_C-\\compilador\\compilador.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Jotas\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.25\\microsoft.windowsdesktop.app.ref.6.0.25.nupkg.sha512",
+    "C:\\Users\\Jotas\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.25\\microsoft.netcore.app.ref.6.0.25.nupkg.sha512",
+    "C:\\Users\\Jotas\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.25\\microsoft.aspnetcore.app.ref.6.0.25.nupkg.sha512",
+    "C:\\Users\\Jotas\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\6.0.25\\microsoft.netcore.app.host.win-x64.6.0.25.nupkg.sha512"
+  ],
   "logs": []
 }

@@ -7,6 +7,10 @@
     // Crea una instancia del controlador
 
 }
+<!-- Incluye SweetAlert2 desde CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
 
 
@@ -57,7 +61,7 @@
         <div class="button-container">
             <button class="ov-btn-grow-skew"onclick="analyzeLexico()">Analizar léxicamente</button>
             <button id="sintacticoButton" onclick="analyzeSintactico()" class="ov-btn-grow-skew">Analizar Sintáctico 🚀</button>
-            <button id="semanticoButton" class="ov-btn-grow-skew">Analizar Semántico 🔍</button>
+            <button id="semanticoButton" onclick="analyzeSemantico()" class="ov-btn-grow-skew">Analizar Semántico 🔍</button>
             <button id="compilarButton" class="ov-btn-grow-skew">Analizar ▶️</button>
             <button id="limpiarButton" class="ov-btn-grow-skew">Limpiar 🧹</button>
         </div>
